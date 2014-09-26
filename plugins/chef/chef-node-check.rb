@@ -31,20 +31,19 @@ class ChefNodeCheck < Sensu::Plugin::Check::CLI
          default: "#{ENV['HOME']}/.chef/knife.rb"
 
   def run
-    #Chef::Config.from_file("#{ENV['HOME']}/.chef/knife.rb")
     Chef::Config.from_file(config[:knife_config])
-    message = ""
+    message = ''
     result = true
     Chef::Node.list(true).each do |node_array|
       node = node_array[1]
       diff = Time.now.to_i - node[:ohai_time].to_i
       if config[:duration] < diff
-        message = message + "[#{node.name}] #{diff} "
+        message += "[#{node.name}] #{diff} "
         result = false
       end
     end
     if result
-      ok "All is well"
+      ok 'All is well'
     else
       critical "Some nodes did not check-in in #{config[:duration]} seconds. #{message}"
     end
