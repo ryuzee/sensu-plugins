@@ -3,6 +3,12 @@
 # Check All Nodes in Chef Server checked in specific duration
 # ===
 #
+# DEPENDENCIES:
+#   chef Ruby gem
+#
+# COMMANDLINE EXAMPLES:
+#   chef-node-check.rb --knife-config /home/foo/.chef/knife.rb
+#
 # Copyright 2014 Ryutaro YOSHIBA http://www.ryuzee.com/
 #
 # Released under the same terms as Sensu (the MIT license); see LICENSE
@@ -26,16 +32,16 @@ class ChefNodeCheck < Sensu::Plugin::Check::CLI
          proc: proc { |a| a.to_i }
   option :knife_config,
          description: 'path to knife.rb',
-         short: '-k KNIFE_CONFIG',
-         long: '--knife_config',
-         default: "#{ENV['HOME']}/.chef/knife.rb"
+         short: '-k KNIFECONFIG',
+         long: '--knife-config',
+         default: "/etc/chef/client.rb"
 
   def run
     Chef::Config.from_file(config[:knife_config])
     message = ''
     result = true
-    Chef::Node.list(true).each do |node_array|
-      node = node_array[1]
+    Chef::Node.list(true).each do |v|
+      node = v[1]
       diff = Time.now.to_i - node[:ohai_time].to_i
       if config[:duration] < diff
         message += "[#{node.name}] #{diff} "
